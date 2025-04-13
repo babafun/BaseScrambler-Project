@@ -32,7 +32,7 @@ try:
     import hashlib
 except ImportError:
     print_coloured("You don't have hashlib! Install it with 'pip install hashlib'.", "bold_red")
-    sys.exit(1)
+    sys.exit(1) # Exit with errors
 
 def hash_with_constant(prehashed_password, constant):
     """Combine the prehashed password with a constant and hash the result."""

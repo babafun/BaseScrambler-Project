@@ -4,7 +4,7 @@ import base64, random, sys, os, hashlib
 prehashed_password_hex = "38de90475bb334fb3dea5d54f250500aba60fe2c6158115d342b06bcb46e39bf"
 prehashed_password_bytes = bytes.fromhex(prehashed_password_hex)
 
-# Step 2: Define a constant to be concatenated
+# Step 2: Define a constant to be added
 constant = os.urandom(16)
 
 def hash_with_constant(prehashed_password, constant):

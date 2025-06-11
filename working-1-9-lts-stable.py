@@ -13,10 +13,10 @@ try:
     import pyfiglet
     def print_banner(figure: str):
         banner = pyfiglet.figlet_format(figure)
-        return banner + "\n" + "(version 2.0)"
+        return banner + "\n" + "(version 1.9)"
 except ImportError:
     def print_banner(figure: str):
-        return figure + "\n" + "(version 2.0)"
+        return figure + "\n" + "(version 1.9)"
 
 # Try to import blessed for coloured output
 try:
@@ -172,38 +172,6 @@ def decode_method_2(s):
         print(f'Error in decoding: {e}')
         return None
 
-def encode_method_11(s):
-    """Encode a string by shifting UTF-8 bytes, converting to hex, reversing, and Base64 encoding."""
-    try:
-        byte_data = s.encode('utf-8')
-        # Shift each byte by +3 mod 256
-        shifted_bytes = bytes((b + 3) % 256 for b in byte_data)
-        hex_str = shifted_bytes.hex()
-        reversed_hex = hex_str[::-1]
-        b64_encoded = base64.b64encode(reversed_hex.encode('utf-8')).decode('utf-8')
-        return b64_encoded + '§'
-    except Exception as e:
-        print(f"Error in encode_method_11: {e}")
-        return None
-
-def decode_method_11(s):
-    """Decode a string encoded with encode_method_11."""
-    try:
-        s = s[:-1]  # Remove the '§' ending
-        # Add missing padding if necessary
-        missing_padding = len(s) % 4
-        if missing_padding != 0:
-            s += '=' * (4 - missing_padding)
-        reversed_hex = base64.b64decode(s).decode('utf-8')
-        hex_str = reversed_hex[::-1]
-        shifted_bytes = bytes.fromhex(hex_str)
-        # Shift each byte back by -3 mod 256
-        original_bytes = bytes((b - 3) % 256 for b in shifted_bytes)
-        return original_bytes.decode('utf-8')
-    except Exception as e:
-        print(f"Error in decode_method_11: {e}")
-        return None
-
 def encode_string(s):
     """Encode a string using a randomly chosen scrambling method."""
     if any(ord(c) > 127 for c in s):
@@ -211,7 +179,7 @@ def encode_string(s):
         utf8_encoded = '~' + base64.b64encode(s.encode('utf-8')).decode()
         return utf8_encoded
 
-    method = random.choice([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+    method = random.choice([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     # Proceed with the selected scrambling method
     if method == 1:
         # Step 1: Base64 Encode
@@ -264,17 +232,17 @@ def encode_string(s):
         reversed_string = hex_string[::-1]
         base64_encoded = base64_encode(reversed_string)
         final_encoded = base64_encoded + '@'
-    elif method == 11:
-        final_encoded = encode_method_11(s)
     return final_encoded
 def decode_string(s):
     """Decode a string using the specified unscrambling method based on its ending character."""
     try:
         # Step 0: Check for the special UTF-8 indicator
         if s.startswith('~'):
+            # Decode UTF-8 encoded string
             utf8_decoded = base64.b64decode(s[1:]).decode('utf-8')
             return utf8_decoded
 
+        # Determine the method from the ending character
         if s.endswith('#'):
             method = 1
         elif s.endswith('~'):
@@ -295,12 +263,11 @@ def decode_string(s):
             method = 9
         elif s.endswith('@'):
             method = 10
-        elif s.endswith('§'):
-            method = 11
         else:
             return None
         s = s[:-1]
 
+        # Proceed with the selected unscrambling method
         if method == 1:
             reversed_s = s[::-1]
             base32_decoded = base32_decode(reversed_s)
@@ -342,8 +309,6 @@ def decode_string(s):
             reversed_string = base64_decoded[::-1]
             byte_data = bytes.fromhex(reversed_string)
             final_decoded = byte_data.decode('utf-8')
-        elif method == 11:
-            final_decoded = decode_method_11(s)
         return final_decoded
     except Exception as e:
         print(f'Error: {e}')

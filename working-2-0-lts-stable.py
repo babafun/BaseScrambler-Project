@@ -122,14 +122,13 @@ def encode_method_1(s):
 def decode_method_1(s):
     """Decode a string encoded with encode_method_1."""
     try:
-        # Only remove the ending '!' if it exists
-        if s.endswith('!'):
-            s = s[:-1]
-        # Reverse the string back in pairs
+        # Step 1: Remove the '!' character
+        s = s[:-1]
+        # Step 2: Reverse the string back in pairs
         reversed_string = ''.join([s[i:i+2] for i in range(0, len(s), 2)][::-1])
-        # Convert the hex string back to bytes
+        # Step 3: Convert the hex string back to bytes
         byte_data = bytes.fromhex(reversed_string)
-        # Convert bytes to the original string
+        # Step 4: Convert bytes to the original string
         original_string = byte_data.decode('utf-8')
         return original_string
     except Exception as e:
@@ -267,7 +266,7 @@ def encode_string(s):
         final_encoded = base64_encoded + '@'
     elif method == 11:
         final_encoded = encode_method_11(s)
-    return final_encoded # type: ignore
+    return final_encoded
 def decode_string(s):
     """Decode a string using the specified unscrambling method based on its ending character."""
     try:
@@ -345,7 +344,7 @@ def decode_string(s):
             final_decoded = byte_data.decode('utf-8')
         elif method == 11:
             final_decoded = decode_method_11(s)
-        return final_decoded # type: ignore
+        return final_decoded
     except Exception as e:
         print(f'Error: {e}')
         return None

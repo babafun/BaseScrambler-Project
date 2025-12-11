@@ -1,7 +1,7 @@
 import base64, random, sys, os
 
 
-# Step 1: Prehash the password and store the result as bytes
+# Step 1: Prehash the secret password and store the result as bytes
 prehashed_password_bytes = bytes.fromhex("38de90475bb334fb3dea5d54f250500aba60fe2c6158115d342b06bcb46e39bf")
 
 # Step 2: Define a constant to be concatenated
@@ -13,10 +13,10 @@ try:
     import pyfiglet
     def print_banner(figure: str):
         banner = pyfiglet.figlet_format(figure)
-        return banner + "\n" + "(version 2.0)"
+        return banner + "\n" + "(version 2.1)"
 except ImportError:
     def print_banner(figure: str):
-        return figure + "\n" + "(version 2.0)"
+        return figure + "\n" + "(missing libraries...try pip install -r requirements.txt)"
 
 # Try to import blessed for coloured output
 try:
@@ -26,7 +26,7 @@ try:
         print(getattr(term, colour) + text + term.normal)
 except (ImportError, AttributeError):
     def print_coloured(text: str, colour: str = "white"):
-        print(text)
+        print(text + " # failed to colour " + colour + "...import with 'pip install blessed'")
 
 try:
     import hashlib

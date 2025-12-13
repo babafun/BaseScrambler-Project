@@ -1,5 +1,5 @@
 [package]
-name = "BaseScrambler-Project"
+name = "base_scrambler_project"
 version = "0.1.0"
 edition = "2024"
 
@@ -9,3 +9,4 @@ data-encoding = "2.3"
 rand = { version = "0.8", features = ["std"] }
 hex = "0.4"
 sha2 = "0.10.9"
+colored = "2.0"

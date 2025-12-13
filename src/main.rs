@@ -3,6 +3,7 @@ use data_encoding::BASE32;
 use rand::RngCore;
 use sha2::{Digest, Sha256};
 use std::io::{self, Write};
+use colored::Colorize;
 
 fn base64_encode(s: &str) -> String {
     general_purpose::STANDARD.encode(s.as_bytes())
@@ -296,9 +297,35 @@ fn random_constant(len: usize) -> Vec<u8> {
     buf
 }
 
-fn read_line(prompt: &str) -> io::Result<String> {
-    print!("{}", prompt);
-    io::stdout().flush()?;
+fn print_coloured(text: &str, colour: &str) {
+    match colour {
+        "bold_yellow" => println!("{}", text.yellow().bold()),
+        "bold_cyan" => println!("{}", text.cyan().bold()),
+        "bold_red" => println!("{}", text.red().bold()),
+        "bold_green" => println!("{}", text.green().bold()),
+        "white" => println!("{}", text.white()),
+        "yellow" => println!("{}", text.yellow()),
+        "cyan" => println!("{}", text.cyan()),
+        "red" => println!("{}", text.red()),
+        "green" => println!("{}", text.green()),
+        _ => println!("{}", text),
+    }
+}
+
+fn print_coloured_noln(text: &str, colour: &str) {
+    match colour {
+        "bold_yellow" => print!("{}", text.yellow().bold()),
+        "bold_cyan" => print!("{}", text.cyan().bold()),
+        "bold_red" => print!("{}", text.red().bold()),
+        "bold_green" => print!("{}", text.green().bold()),
+        "white" => print!("{}", text.white()),
+        _ => print!("{}", text),
+    }
+    io::stdout().flush().ok();
+}
+
+fn prompt_and_read(prompt: &str, colour: &str) -> io::Result<String> {
+    print_coloured_noln(prompt, colour);
     let mut input = String::new();
     io::stdin().read_line(&mut input)?;
     Ok(input.trim().to_string())
@@ -313,54 +340,59 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut attempts = 0;
     let mut decode_attempts = 0;
 
-    println!("BASE/Scramble (Rust port)");
+    print_coloured("BASE/Scramble", "bold_yellow");
+    print_coloured("(version 2.1)", "white");
     while attempts < 3 {
-        let user_password = read_line("Enter password: ")?;
+        let user_password = prompt_and_read("Enter password: ", "bold_cyan")?;
         if verify_password(&stored_password, &user_password, &constant) {
-            println!("Correct password!");
+            // mimic clearing previous input and showing green confirmation
+            print!("\x1b[1A\x1b[2K");
+            print_coloured(&user_password, "bold_green");
+            print_coloured("Correct password!", "bold_green");
             loop {
-                let action = read_line("Do you want to encode, decode, or exit? ")?.to_lowercase();
+                let action = prompt_and_read("Do you want to encode, decode, or exit? ", "white")?.to_lowercase();
                 match action.as_str() {
                     "encode" => {
-                        let text = read_line("Enter the text you want to encode: ")?;
+                        let text = prompt_and_read("Enter the text you want to encode: ", "bold_yellow")?;
                         match encode_string(&text) {
-                            Ok(e) => println!("Encoded: {}", e),
-                            Err(e) => println!("Encode error: {}", e),
+                            Ok(e) => print_coloured(&format!("Encoded: {}", e), "bold_cyan"),
+                            Err(e) => print_coloured(&format!("Encode error: {}", e), "bold_red"),
                         }
                     }
                     "decode" => {
-                        let text = read_line("Enter the text you want to decode: ")?;
+                        let text = prompt_and_read("Enter the text you want to decode: ", "bold_yellow")?;
                         match decode_string(&text) {
-                            Ok(Some(d)) => { println!("Decoded: {}", d); decode_attempts = 0; }
+                            Ok(Some(d)) => { print_coloured(&format!("Decoded: {}", d), "bold_cyan"); decode_attempts = 0; }
                             Ok(None) => {
-                                println!("That's invalid.");
+                                print_coloured("That's invalid.", "bold_red");
                                 decode_attempts += 1;
                             }
                             Err(e) => {
-                                println!("Decode error: {}", e);
+                                print_coloured(&format!("Decode error: {}", e), "bold_red");
                                 decode_attempts += 1;
                             }
                         }
                     }
                     "exit" => {
-                        println!("Exiting the program. Goodbye!");
+                        print_coloured("Exiting the program. Goodbye!", "bold_red");
                         return Ok(());
                     }
-                    _ => println!("Invalid option. Please choose 'encode', 'decode', or 'exit'."),
+                    _ => print_coloured("Invalid option. Please choose 'encode', 'decode', or 'exit'.", "bold_red"),
                 }
                 if decode_attempts == 3 {
-                    println!("Maybe try a different approach?");
+                    print_coloured("Maybe try a different approach?", "bold_yellow");
                 } else if decode_attempts == 5 {
-                    println!("That's invalid... just like your life.");
+                    print_coloured("That's invalid... just like your life.", "bold_yellow");
                     decode_attempts = 0;
                 }
             }
         } else {
-            println!("Incorrect password. Try again.");
+            print!("\x1b[1A\x1b[2K");
+            print_coloured("Incorrect password. Try again.", "bold_red");
             attempts += 1;
         }
     }
-    println!("Too many incorrect attempts. Exiting.");
+    print_coloured("Too many incorrect attempts. Exiting.", "bold_red");
     Ok(())
 }
 // End of program

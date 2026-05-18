@@ -21,6 +21,7 @@ To use the BASEScrambler Project, follow these steps:
 
     ```sh
     python latest.py
+    >> sigma
     ```
 
 4. **Enter A Command**:
